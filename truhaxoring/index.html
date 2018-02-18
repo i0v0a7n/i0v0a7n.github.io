@@ -2,7 +2,6 @@
 <html>
 <head>
     <style>
-        
         #gaym { 
             font-size: 50px;
             border: 5px solid green;
@@ -11,7 +10,6 @@
             display: block;
             margin: auto;
             width: 97%;
-            max-width: 420px;
         }
     </style>
     <meta charset="UTF-8">
@@ -20,54 +18,133 @@
     <title>Zmeika_V2.0</title>
 </head>
 <body>
-    <canvas id="gaym" width="420" height="420" ></canvas>
+    <canvas id="gaym"></canvas>
     <script>
         var canvas = document.getElementById("gaym");
         var ctx = canvas.getContext("2d");
-        var x = 101;
+        var x=3;
         var inputter ="empty";
-        var y = 101;
+        var y=3;
         var arrx = [];
         var arry = [];
         var lastStepTime = 0;
         var i;
         var length = 3;
         var klick = 1;
-        function draw(time) 
+        var SetkaStep = 20;
+        var Fieldsize = 20;
+        var foodc=0;
+        var fx;
+        var fy;
+        var checker;
+        var replace=0;
+        var gaymoverc=0;
+        var img = new Image();  // Создание нового объекта изображения
+        img.src = 'https://pp.userapi.com/c604522/v604522782/3a21d/D8s4bpm9wTk.jpg';
+        function init()
         {
+            canvas.width=Fieldsize*SetkaStep;
+            canvas.height=Fieldsize*SetkaStep;
+            canvas.style['max-width']=canvas.width+'px';
+            requestAnimationFrame(update);
+        }
+        function poscheck() 
+        {
+            if (x>Fieldsize-1)
+            x=0;
+            if (y>Fieldsize-1)
+            y=0;
+            if (x<0)
+            x=Fieldsize-1;
+            if (y<0)
+            y=Fieldsize-1;
+        }
+        function update(time)
+        {   
             if (time - lastStepTime >= 200) 
+            {
+                if(inputter=="up")
+                {
+                    y-=1;
+                }
+                if(inputter=="down")
+                {
+                    y+=1;
+                }
+                if(inputter=="left")
+                {
+                    x-=1;
+                }
+                if(inputter=="right")
+                {
+                    x+=1;
+                }
+                if ((fy==y) && (fx==x))
+                {
+                    foodc=0;
+                    length++;
+                }
+                poscheck();
+                if (inputter!="empty")
+                for (i=0; i<length; i++)  
+                if (x==arrx[i] && y==arry[i])
+                gaymover();
+                console.log(x,y);
+                arrx[length]=x;
+                arry[length]=y;
+                arrx.shift();
+                arry.shift();
+                if (foodc==0)
+                food();
+                draw(time);
+                lastStepTime = time;
+            }
+            requestAnimationFrame(update);
+        }
+        function RndInt(min, max) 
+        {
+            return Math.floor(Math.random() * (max - min + 1) ) + min;
+        }
+        function food()
+        {
+            while (foodc==0)
+            {
+                checker=0;
+                fx=RndInt(0,Fieldsize-1);
+                fy=RndInt(0,Fieldsize-1);
+                for (i=0; i<length; i++)  
+                if (fx==arrx[i] && fy==arry[i])
+                checker++;
+                if (checker==0)
+                foodc=1;
+                console.log(fx,fy);
+            }
+        }
+        function draw(time) 
+        {   
+            if (gaymoverc==0)
             {
                 ctx.clearRect(0,0,canvas.width,canvas.height);
                 ctx.fillStyle = "#28E240";
-                for (i=0; i<(canvas.width/20); i++){
-                    ctx.fillRect ((i*20),0,1,canvas.height);
+                for (i=0; i<Fieldsize; i++)
+                {
+                    ctx.fillRect ((i*SetkaStep),0,1,canvas.height);
                 }
-                for (i=0; i<(canvas.height/20); i++){
-                    ctx.fillRect (0,(i*20),canvas.width,1);
+                for (i=0; i<(Fieldsize); i++)   
+                {
+                    ctx.fillRect (0,(i*SetkaStep),canvas.width,1);
                 }
-                klick++;
-                arrx[klick]=x;
-                arry[klick]=y;
+                ctx.fillStyle = "#1455AA";
+                for (i=0; i<length; i++)
+                ctx.fillRect (arrx[i]*SetkaStep+1,arry[i]*SetkaStep+1,SetkaStep-1,SetkaStep-1);
+                ctx.fillStyle = "#F4E03C";
+                ctx.fillRect (fx*SetkaStep+1,fy*SetkaStep+1,SetkaStep-1,SetkaStep-1);
                 ctx.fillStyle = "#262076";
-                if(inputter=="up")
-                y-=20;
-                if(inputter=="down")
-                y+=20;
-                if(inputter=="left")
-                x-=20;
-                if(inputter=="right")
-                x+=20;
-                ctx.fillRect (x,y,19,19);
-                ctx.fillStyle = "#1455AA";//"#F4E03C";
-                for (i=klick-length; i<klick+1; i++)
-                ctx.fillRect (arrx[i],arry[i],19,19);
-                lastStepTime = time;
+                ctx.fillRect (x*SetkaStep+1,y*SetkaStep+1,SetkaStep-1,SetkaStep-1);
             }
-            requestAnimationFrame(draw);
         }
         function code_destroyer(event)
         {
-            console.log (event.keyCode);
             if (event.keyCode==38)
             inputter="up";
             if (event.keyCode==40)
@@ -76,12 +153,21 @@
             inputter="right";
             if (event.keyCode==37)
             inputter="left";
+            if (event.keyCode==32)
+            inputter="space";
         }
-        //function food();
-        //{
-        //    
-        //}
-        requestAnimationFrame(draw);
+        function gaymover()
+        {
+            gaymoverc=1;
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            ctx.drawImage(img,0,0,canvas.width,canvas.height);
+            ctx.textAlign = "center"
+            ctx.font = "30px Comic Sans MS";
+            ctx.fillText("Ну, ты проиграл, пацан",canvas.width/2, canvas.height/2-40);
+            ctx.fillText("Твой счёт:",canvas.width/2, canvas.height/2);
+            ctx.fillText(length,canvas.width/2, canvas.height/2+40);
+        }
+        addEventListener('load',init);
         addEventListener('keydown',code_destroyer);
     </script>
 </body>
