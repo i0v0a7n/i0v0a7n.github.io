@@ -6,17 +6,16 @@
         {
             background-image: url(https://pp.userapi.com/c630122/v630122224/27324/NJgyvzB16Uw.jpg);
             background-size: cover;
-        }   
-        #gaym 
+            width:100%; height:100%;
+        }  
+        #gameArea 
         {   
             opacity: .8; 
             font-size: 50px;
             border: 5px solid green;
             background-image: url('padjj.jpg');
             background-size: cover;
-            display:block;
-            margin: auto;
-        }
+        } * { margin:0; padding:0; }
     </style>
     <meta charset="UTF-8">
     <meta name="viewport">
@@ -24,10 +23,10 @@
     <title>Zmeika_V2.1</title>
 </head>
 <body>
-    <canvas id="gaym"></canvas>
+    <canvas id="gameArea"></canvas>
     <script>
         var lastinputtipe;
-        var canvas = document.getElementById("gaym");
+        var canvas = document.getElementById("gameArea");
         var ctx = canvas.getContext("2d");
         var x=3;
         var inputter ="empty";
@@ -177,13 +176,13 @@
                 console.log("vert");
                 if (tx>(canvas.width/3*2))
                 {
-                inputter="right";
-                lastdir="horiz";
+                    inputter="right";
+                    lastdir="horiz";
                 }
                 if (tx<(canvas.width/3))
                 {
-                inputter="left";
-                lastdir="horiz";
+                    inputter="left";
+                    lastdir="horiz";
                 }
             }
             else if (lastdir=="horiz")
