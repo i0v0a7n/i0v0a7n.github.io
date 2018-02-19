@@ -15,6 +15,11 @@
             border: 5px solid green;
             background-image: url('padjj.jpg');
             background-size: cover;
+<<<<<<< HEAD
+            overflow: hidden;
+            position: fixed;
+=======
+>>>>>>> dff965ce13fb89924d65389f62a35e32b99f31db
         } * { margin:0; padding:0; }
     </style>
     <meta charset="UTF-8">
@@ -250,6 +255,10 @@
         canvas.addEventListener('touchstart',code_destroyer_touch);
         addEventListener('load',init);
         addEventListener('keydown',code_destroyer);
+        document.ontouchmove = function (e) 
+        {
+            e.preventDefault();
+        }
     </script>
     <audio src="shakalfon.mp3" autoplay loop></audio>
 </body>
