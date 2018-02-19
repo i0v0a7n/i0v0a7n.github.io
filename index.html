@@ -5,6 +5,7 @@
         body 
         {
             background-image: url(https://pp.userapi.com/c630122/v630122224/27324/NJgyvzB16Uw.jpg);
+            background-size: cover;
         }   
         #gaym 
         {   
@@ -13,6 +14,8 @@
             border: 5px solid green;
             background-image: url('padjj.jpg');
             background-size: cover;
+            display:block;
+            margin: auto;
         }
     </style>
     <meta charset="UTF-8">
@@ -55,7 +58,6 @@
             inputter ="empty";
             canvas.width=Fieldsize*SetkaStep;
             canvas.height=Fieldsize*SetkaStep;
-            canvas.style['max-width']=canvas.width+'px';
             requestAnimationFrame(update);
         }
         function poscheck() 
