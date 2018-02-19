@@ -4,9 +4,9 @@
     <style>
         body 
         {
-            background: url(https://pp.userapi.com/c630122/v630122224/27324/NJgyvzB16Uw.jpg);
-            background-size: cover;
-        }
+            background-image: url(https://pp.userapi.com/c630122/v630122224/27324/NJgyvzB16Uw.jpg);
+            background-size: 100%;
+        }   
         #gaym 
         {   
             opacity: .8; 
@@ -16,17 +16,17 @@
             background-size: cover;
             display: block;
             margin: auto;
-            width: 97%;
         }
     </style>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Zmeika_V2.0</title>
+    <title>Zmeika_V2.1</title>
 </head>
 <body>
     <canvas id="gaym"></canvas>
     <script>
+        var lastinputtipe;
         var canvas = document.getElementById("gaym");
         var ctx = canvas.getContext("2d");
         var x=3;
@@ -44,6 +44,7 @@
         var fy;
         var checker;
         var gaymoverc=0;
+        var lastdir="empty";
         var img = new Image();
         img.src = 'https://pp.userapi.com/c604522/v604522782/3a21d/D8s4bpm9wTk.jpg';
         function init()
@@ -155,6 +156,7 @@
         }
         function code_destroyer(event)
         {
+            lastinputtipe="key";
             if (event.keyCode==38 && inputter!="down")
             inputter="up";
             if (event.keyCode==40 && inputter!="up")
@@ -168,23 +170,66 @@
         }
         function code_destroyer_touch(event)
         {
+            lastinputtipe="touch";
             var tx=event.targetTouches[0].clientX-canvas.offsetLeft;
             var ty=event.targetTouches[0].clientY-canvas.offsetTop;
-            console.log(tx,ty);
-            var ur=0;
-            var rd=0;
-            if (tx>ty)
-            ur=1;
-            if (tx>(canvas.height-ty))
-            rd=1;
-            if (ur==1 && rd==1 && inputter!="left")
-            inputter="right";
-            if (ur==1 && rd==0 && inputter!="down")
-            inputter="up";
-            if (ur==0 && rd==1 && inputter!="up")
-            inputter="down";
-            if (ur==0 && rd==0 && inputter!="right")
-            inputter="left";
+            if (lastdir=="vert")
+            {
+                console.log("vert");
+                if (tx>(canvas.width/3*2))
+                {
+                inputter="right";
+                lastdir="horiz";
+                }
+                if (tx<(canvas.width/3))
+                {
+                inputter="left";
+                lastdir="horiz";
+                }
+            }
+            else if (lastdir=="horiz")
+            {
+                console.log("hor");
+                if (ty>(canvas.height/3*2))
+                {
+                    inputter="down";
+                    lastdir="vert";
+                }
+                if (ty<(canvas.height/3))
+                {
+                    inputter="up";
+                    lastdir="vert";
+                }
+            }
+            if (inputter=="empty")
+            {
+                var ur=0;
+                var rd=0;
+                if (tx>ty)
+                ur=1;
+                if (tx>(canvas.height-ty))
+                rd=1;
+                if (ur==1 && rd==1)
+                {
+                    inputter="right";
+                    lastdir="horiz";
+                }
+                if (ur==1 && rd==0)
+                {
+                    inputter="up";
+                    lastdir="vert";
+                }
+                if (ur==0 && rd==1)
+                {
+                    inputter="down";
+                    lastdir="vert";
+                }
+                if (ur==0 && rd==0)
+                {
+                    inputter="left";
+                    lastdir="horiz";
+                }
+            }
             if (gaymoverc==1)
             init();
         }
@@ -195,9 +240,14 @@
             ctx.drawImage(img,0,0,canvas.width,canvas.height);
             ctx.textAlign = "center"
             ctx.font = "30px sans-serif";
+            ctx.fillStyle = "#5BDB35";
             ctx.fillText("Ну, ты проиграл, пацан",canvas.width/2, canvas.height/2-40);
             ctx.fillText("Твой счёт:",canvas.width/2, canvas.height/2);
             ctx.fillText(length,canvas.width/2, canvas.height/2+40);
+            if (lastinputtipe=="key")
+            ctx.fillText("Нажми Enter",canvas.width/2, canvas.height/2+80);
+            if (lastinputtipe=="touch")
+            ctx.fillText("Нажми на экран",canvas.width/2, canvas.height/2+80);
         }
         canvas.addEventListener('touchstart',code_destroyer_touch);
         addEventListener('load',init);
