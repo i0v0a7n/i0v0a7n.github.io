@@ -2,7 +2,16 @@
 <html>
 <head>
     <style>
-        #gaym { 
+        body 
+        {
+           
+            background: url(https://pp.userapi.com/c630122/v630122224/27324/NJgyvzB16Uw.jpg);
+            background-size: cover;
+            
+        }
+        #gaym 
+        {   
+            opacity: .8; 
             font-size: 50px;
             border: 5px solid green;
             background-image: url('padjj.jpg');
@@ -61,7 +70,7 @@
         }
         function update(time)
         {   
-            if (time - lastStepTime >= 200) 
+            if (time - lastStepTime >= 150) 
             {
                 if(inputter=="up")
                 {
@@ -89,7 +98,6 @@
                 for (i=0; i<length; i++)  
                 if (x==arrx[i] && y==arry[i])
                 gaymover();
-                console.log(x,y);
                 arrx[length]=x;
                 arry[length]=y;
                 arrx.shift();
@@ -116,8 +124,7 @@
                 if (fx==arrx[i] && fy==arry[i])
                 checker++;
                 if (checker==0)
-                foodc=1;
-                console.log(fx,fy);
+                foodc=1;    
             }
         }
         function draw(time) 
@@ -153,8 +160,26 @@
             inputter="right";
             if (event.keyCode==37)
             inputter="left";
-            if (event.keyCode==32)
-            inputter="space";
+        }
+        function code_destroyer_touch(event)
+        {
+            var tx=event.targetTouches[0].clientX-canvas.offsetLeft;
+            var ty=event.targetTouches[0].clientY-canvas.offsetTop;
+            console.log(tx,ty);
+            if (tx>ty)
+            {
+                if (tx>(canvas.height-ty))
+                inputter="right";
+                else
+                inputter="up";
+            }
+            else
+            {
+                if (tx>(canvas.height-ty))
+                inputter="down";
+                else
+                inputter="left";
+            }
         }
         function gaymover()
         {
@@ -167,6 +192,7 @@
             ctx.fillText("Твой счёт:",canvas.width/2, canvas.height/2);
             ctx.fillText(length,canvas.width/2, canvas.height/2+40);
         }
+        canvas.addEventListener('touchstart',code_destroyer_touch);
         addEventListener('load',init);
         addEventListener('keydown',code_destroyer);
     </script>
