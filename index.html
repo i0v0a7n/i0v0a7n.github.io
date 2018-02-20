@@ -5,261 +5,41 @@
         body 
         {
             background-image: url(https://pp.userapi.com/c630122/v630122224/27324/NJgyvzB16Uw.jpg);
-            background-size: cover;
-            width:100%; height:100%;
-        }  
-        #gameArea 
-        {   
-            opacity: .8; 
-            font-size: 50px;
-            border: 5px solid green;
-            background-image: url('padjj.jpg');
-            background-size: cover;
-<<<<<<< HEAD
-            overflow: hidden;
-            position: fixed;
-=======
->>>>>>> dff965ce13fb89924d65389f62a35e32b99f31db
-        } * { margin:0; padding:0; }
+            background-size: cover;  
+            align-content: center;     
+            display: block;    
+        } 
+        .grid
+        {
+            font-size: 25px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 50px;
+            grid-auto-rows: 320px;
+            grid-gap: 40px;
+            justify-items: center;
+            align-items: center;
+        }
+        .grid-item
+        {
+            padding: .6em;
+            background:#DEC1C1;
+            }
+
     </style>
     <meta charset="UTF-8">
-    <meta name="viewport">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Zmeika_V2.1</title>
 </head>
 <body>
-    <canvas id="gameArea"></canvas>
-    <script>
-        var lastinputtipe;
-        var canvas = document.getElementById("gameArea");
-        var ctx = canvas.getContext("2d");
-        var x=3;
-        var inputter ="empty";
-        var y=3;
-        var arrx = [];
-        var arry = [];
-        var lastStepTime = 0;
-        var i;
-        var length = 3;
-        var SetkaStep = 20;
-        var Fieldsize = 20;
-        var foodc=0;
-        var fx;
-        var fy;
-        var checker;
-        var gaymoverc=0;
-        var lastdir="empty";
-        var img = new Image();
-        img.src = 'https://pp.userapi.com/c604522/v604522782/3a21d/D8s4bpm9wTk.jpg';
-        function init()
-        {
-            x=3;
-            y=3;
-            length = 3;
-            gaymoverc=0;
-            arrx = [];
-            arry = [];
-            inputter ="empty";
-            canvas.width=Fieldsize*SetkaStep;
-            canvas.height=Fieldsize*SetkaStep;
-            requestAnimationFrame(update);
-        }
-        function poscheck() 
-        {
-            if (x>Fieldsize-1)
-            x=0;
-            if (y>Fieldsize-1)
-            y=0;
-            if (x<0)
-            x=Fieldsize-1;
-            if (y<0)
-            y=Fieldsize-1;
-        }
-        function update(time)
-        {   
-            if (time - lastStepTime >= 150) 
-            {
-                if(inputter=="up")
-                {
-                    y-=1;
-                }
-                if(inputter=="down")
-                {
-                    y+=1;
-                }
-                if(inputter=="left")
-                {
-                    x-=1;
-                }
-                if(inputter=="right")
-                {
-                    x+=1;
-                }
-                poscheck();
-                if ((fy==y) && (fx==x))
-                {
-                    foodc=0;
-                    length++;
-                }
-                if (inputter!="empty")
-                for (i=0; i<length; i++)  
-                if (x==arrx[i] && y==arry[i])
-                {
-                    gaymover();
-                    return;
-                }
-                arrx[length]=x;
-                arry[length]=y;
-                arrx.shift();
-                arry.shift();
-                if (foodc==0)
-                food();
-                draw(time);
-                lastStepTime = time;
-            }
-            requestAnimationFrame(update);
-        }
-        function RndInt(min, max) 
-        {
-            return Math.floor(Math.random() * (max - min + 1) ) + min;
-        }
-        function food()
-        {
-            while (foodc==0)
-            {
-                checker=0;
-                fx=RndInt(0,Fieldsize-1);
-                fy=RndInt(0,Fieldsize-1);
-                for (i=0; i<length; i++)  
-                if (fx==arrx[i] && fy==arry[i])
-                checker++;
-                if (checker==0)
-                foodc=1;    
-            }
-        }
-        function draw(time) 
-        {   
-            ctx.clearRect(0,0,canvas.width,canvas.height);
-            ctx.fillStyle = "#28E240";
-            for (i=0; i<Fieldsize; i++)
-            {
-                ctx.fillRect ((i*SetkaStep),0,1,canvas.height);
-            }
-            for (i=0; i<(Fieldsize); i++)   
-            {
-                ctx.fillRect (0,(i*SetkaStep),canvas.width,1);
-            }
-            ctx.fillStyle = "#1455AA";
-            for (i=0; i<length; i++)
-            ctx.fillRect (arrx[i]*SetkaStep+1,arry[i]*SetkaStep+1,SetkaStep-1,SetkaStep-1);
-            ctx.fillStyle = "#F4E03C";
-            ctx.fillRect (fx*SetkaStep+1,fy*SetkaStep+1,SetkaStep-1,SetkaStep-1);
-            ctx.fillStyle = "#262076";
-            ctx.fillRect (x*SetkaStep+1,y*SetkaStep+1,SetkaStep-1,SetkaStep-1);
-        }
-        function code_destroyer(event)
-        {
-            lastinputtipe="key";
-            if (event.keyCode==38 && inputter!="down")
-            inputter="up";
-            if (event.keyCode==40 && inputter!="up")
-            inputter="down";
-            if (event.keyCode==39 && inputter!="left")
-            inputter="right";
-            if (event.keyCode==37 && inputter!="right")
-            inputter="left";
-            if (event.keyCode==13 && gaymoverc==1)
-            init();
-        }
-        function code_destroyer_touch(event)
-        {
-            lastinputtipe="touch";
-            var tx=event.targetTouches[0].clientX-canvas.offsetLeft;
-            var ty=event.targetTouches[0].clientY-canvas.offsetTop;
-            if (lastdir=="vert")
-            {
-                console.log("vert");
-                if (tx>(canvas.width/3*2))
-                {
-                    inputter="right";
-                    lastdir="horiz";
-                }
-                if (tx<(canvas.width/3))
-                {
-                    inputter="left";
-                    lastdir="horiz";
-                }
-            }
-            else if (lastdir=="horiz")
-            {
-                console.log("hor");
-                if (ty>(canvas.height/3*2))
-                {
-                    inputter="down";
-                    lastdir="vert";
-                }
-                if (ty<(canvas.height/3))
-                {
-                    inputter="up";
-                    lastdir="vert";
-                }
-            }
-            if (inputter=="empty")
-            {
-                var ur=0;
-                var rd=0;
-                if (tx>ty)
-                ur=1;
-                if (tx>(canvas.height-ty))
-                rd=1;
-                if (ur==1 && rd==1)
-                {
-                    inputter="right";
-                    lastdir="horiz";
-                }
-                if (ur==1 && rd==0)
-                {
-                    inputter="up";
-                    lastdir="vert";
-                }
-                if (ur==0 && rd==1)
-                {
-                    inputter="down";
-                    lastdir="vert";
-                }
-                if (ur==0 && rd==0)
-                {
-                    inputter="left";
-                    lastdir="horiz";
-                }
-            }
-            if (gaymoverc==1)
-            init();
-        }
-        function gaymover()
-        {
-            gaymoverc=1;
-            ctx.clearRect(0,0,canvas.width,canvas.height);
-            ctx.drawImage(img,0,0,canvas.width,canvas.height);
-            ctx.textAlign = "center"
-            ctx.font = "30px sans-serif";
-            ctx.fillStyle = "#5BDB35";
-            ctx.fillText("Ну, ты проиграл, пацан",canvas.width/2, canvas.height/2-40);
-            ctx.fillText("Твой счёт:",canvas.width/2, canvas.height/2);
-            ctx.fillText(length,canvas.width/2, canvas.height/2+40);
-            if (lastinputtipe=="key")
-            ctx.fillText("Нажми Enter",canvas.width/2, canvas.height/2+80);
-            if (lastinputtipe=="touch")
-            ctx.fillText("Нажми на экран",canvas.width/2, canvas.height/2+80);
-        }
-        canvas.addEventListener('touchstart',code_destroyer_touch);
-        addEventListener('load',init);
-        addEventListener('keydown',code_destroyer);
-        document.ontouchmove = function (e) 
-        {
-            e.preventDefault();
-        }
-    </script>
-    <audio src="shakalfon.mp3" autoplay loop></audio>
+    <center>
+    <div class="grid">
+        <div class="grid-item grid-item-1">Мобильные версии</div>
+        <div class="grid-item grid-item-2">Полные версии</div>
+        <div class="grid-item grid-item-3"><a href="Zmeika/Zmeika_mobile.html"><img src="Zmeika_mob_icon.png" alt="альтернативный текст"></a></div>
+        <div class="grid-item grid-item-4"><a href="Zmeika/Zmeika_pc.html"><img src="Zmeika_pc_icon.png" alt="альтернативный текст"></a></div>
+   
+</div>
+</center>  
 </body>
 </html>
