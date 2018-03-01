@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <style>
+        body 
+        { 
+            background-image: url(https://pp.userapi.com/c633724/v633724224/37314/2SXVSPtGYSg.jpg);
+            background-size: cover;
+        }  
+        #gameArea 
+        {   
+            opacity: .8; 
+            font-size: 50px;
+            border: 5px solid green; 
+            display: block;
+            margin: auto;
+        }
+    </style>
+    <meta name="viewport">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Tetris_pc</title>
+</head>
+<body>
+    <canvas id="gameArea" width="399" height="399"></canvas>
+    <script>
+        var canvas = document.getElementById("gameArea");
+        var ctx = canvas.getContext("2d");
+        var img = new Image();
+        img.src = 'https://pp.userapi.com/c604522/v604522782/3a21d/D8s4bpm9wTk.jpg';
+        var lastStepTime = 0;
+        var i;
+        var j;
+        var SetkaStep = 40;
+        var FieldWidth = 10;
+        var FieldHeight = 15;
+        var x=4;
+        var y=0;
+        var inputter;
+        var temp;
+        var chx;
+        var chy;
+        var tx;
+        var ty;
+        var nf;
+        var score=0;
+        var cf=getRandomInt(0,6);
+        var nf=getRandomInt(0,6);
+        var move;
+        var gaymoverc=0;
+        var rot=0;
+        var blockcount;
+        var emptycount;
+        var figarr=
+        [{
+            //T
+            xb:[3,5,4],
+            yb:[0,0,1],
+            xh:4,
+            yh:0
+        }
+        ,
+        {
+            //I
+            xb:[2,3,5],
+            yb:[0,0,0],
+            xh:4,
+            yh:0
+        }
+        ,
+        {
+            //Z1
+            xb:[3,4,5],
+            yb:[0,1,1],
+            xh:4,
+            yh:0
+        }
+        ,
+        {
+            //G1
+            xb:[3,5,5],
+            yb:[0,1,0],
+            xh:4,
+            yh:0
+        }
+        ,
+        {
+            //G2
+            xb:[3,5,3],
+            yb:[1,0,0],
+            xh:4,
+            yh:0
+        }
+        ,
+        {
+            //Z2
+            xb:[3,4,5],
+            yb:[1,1,0],
+            xh:4,
+            yh:0
+        }
+        ,
+        {
+            //cube
+            xb:[3,4,3],
+            yb:[0,1,1],
+            xh:4,
+            yh:0
+        }];
+        function matrixArray(columns,rows)
+        {
+            var arr = new Array();
+            for(var i=0; i<rows; i++)
+            {
+                arr[i] = new Array();
+                for(var j=0; j<columns; j++)
+                {
+                    arr[i][j] = 0;
+                }
+            }
+            return arr;
+        }
+        var Parr = matrixArray(2,4)
+        var Farr = matrixArray(FieldWidth-1,FieldHeight)
+        function preview()
+        {
+            for (i=0; i<2; i++)
+            for (j=0; j<4; j++)
+            Parr[i][j]=0;
+            for (i=0; i<3; i++)
+            {
+                x=figarr[nf].xb[i]-2;
+                y=figarr[nf].yb[i];
+                Parr[y][x]=11+nf;
+            }
+            Parr[figarr[nf].yh][figarr[nf].xh-2]=21+nf;
+        }
+        function arrshift(i)
+        {
+            score++;
+            for (var k=i; k>0; k--)
+            for (j=0; j<FieldWidth-1; j++)
+            {
+                temp = Farr[k-1][j];
+                Farr[k-1][j]=Farr[k][j];
+                Farr[k][j]=temp;
+            }
+        }
+        for (i=0; i<3; i++)
+        {
+            x=figarr[cf].xb[i];
+            y=figarr[cf].yb[i];
+            Farr[y][x]=11+cf;
+        }
+        y=figarr[cf].yh;
+        x=figarr[cf].xh;
+        Farr[y][x]=21+cf;
+        function rotate()
+        {
+            for (i=0; i<FieldHeight; i++)
+            for (j=0; j<FieldWidth; j++)
+            if (Farr[i][j]>20)
+            {
+                chx=j;
+                chy=i;
+            }
+            console.log(chx,chy);
+            if (cf==0)
+            rotateT();
+            if (cf==1)
+            rotateI();
+            if (cf==2)
+            rotateZ1();
+            if (cf==3)
+            rotateG1();
+            if (cf==4)
+            rotateG2();
+            if (cf==5)
+            rotateZ2();
+            if (cf==6)
+            rotateC();
+        }
+        function checkLeft()
+        {
+            blockcount=0;
+            emptycount=0;
+            j=0;
+            for (i=FieldHeight-1; i>=0; i--)
+            if (Farr[i][j]>10)
+            {
+                tx=j;
+                ty=i;
+                emptycount++;
+            }
+            for (i=FieldHeight-1; i>=0; i--)
+            for (j=1; j<FieldWidth; j++)
+            if (Farr[i][j]>10)
+            {
+                blockcount++;
+                tx=j;
+                ty=i;
+                if  (Farr[ty][tx-1]==0 || Farr[ty][tx-1]>10)
+                emptycount++;   
+            }
+            console.log(blockcount,emptycount);
+            if (blockcount==emptycount)   
+            pushLeft();
+        }
+        function pushLeft()
+        {
+            for (i=FieldHeight-1; i>=0; i--)
+            for (j=1; j<FieldWidth; j++)
+            if (Farr[i][j]>10)
+            {
+                tx=j;
+                ty=i;
+                temp = Farr[ty][tx-1];
+                Farr[ty][tx-1]=Farr[ty][tx];
+                Farr[ty][tx]=temp;
+            }
+        }
+        function checkRight()
+        {
+            blockcount=0;
+            emptycount=0;
+            j=FieldWidth-1;
+            for (i=FieldHeight-1; i>=0; i--)
+            if (Farr[i][j]>10)
+            {
+                tx=j;
+                ty=i;
+                emptycount++;
+            }
+            for (i=FieldHeight-1; i>=0; i--)
+            for (j=1; j<FieldWidth; j++)
+            if (Farr[i][j]>10)
+            {
+                blockcount++;
+                tx=j;
+                ty=i;
+                if  (Farr[ty][tx+1]==0 || Farr[ty][tx+1]>10)
+                emptycount++;   
+            }
+            console.log(blockcount,emptycount);
+            if (blockcount==emptycount)   
+            pushRight();
+        }
+        function pushRight()
+        {
+            for (i=FieldHeight-1; i>=0; i--)
+            for (j=FieldWidth-1; j>=0; j--)
+            if (Farr[i][j]>10)
+            {
+                tx=j;
+                ty=i;
+                temp = Farr[ty][tx+1];
+                Farr[ty][tx+1]=Farr[ty][tx];
+                Farr[ty][tx]=temp;
+            }
+        }
+        function checkBelow()
+        {
+            blockcount=0;
+            emptycount=0;
+            i=FieldHeight-1;
+            for (j=0; j<FieldWidth; j++)
+            if (Farr[i][j]>10)
+            {
+                tx=j;
+                ty=i;
+                emptycount=10;
+            }
+            for (i=FieldHeight-2; i>=0; i--)
+            for (j=0; j<FieldWidth; j++)
+            if (Farr[i][j]>10)
+            {
+                blockcount++;
+                tx=j;
+                ty=i;
+                if  (Farr[ty+1][tx]==0 || Farr[ty+1][tx]>10)
+                emptycount++;
+            }
+            console.log(blockcount,emptycount);
+            if (blockcount==emptycount)
+            pushDown();
+        }
+        function pushDown()
+        {
+            for (i=FieldHeight-2; i>=0; i--)
+            for (j=0; j<FieldWidth; j++)
+            if (Farr[i][j]>10)
+            {
+                tx=j;
+                ty=i;
+                move++;
+                temp = Farr[ty][tx];
+                Farr[ty][tx]=Farr[ty+1][tx];
+                Farr[ty+1][tx]=temp;
+            }
+        }
+        function newBlock()
+        {
+            cf=nf;
+            nf=getRandomInt(0,6)
+            preview();
+            rot=0;
+            for (i=FieldHeight-1; i>=0; i--)
+            for (j=0; j<FieldWidth; j++)
+            if (Farr[i][j]>10)
+            Farr[i][j]=(Farr[i][j]%10);
+            for (i=0; i<FieldHeight; i++)
+            {
+                var blam=0;
+                for (j=0; j<FieldWidth-1; j++)
+                if (10>Farr[i][j] && Farr[i][j]>0)
+                blam++;
+                console.log(blam);
+                if (blam==9)
+                {
+                    for (j=0; j<FieldWidth-1; j++)
+                    {
+                        Farr[i][j]=0;
+                    }
+                    arrshift(i);
+                }
+            }
+            for (i=0; i<3; i++)
+            {
+                x=figarr[cf].xb[i];
+                y=figarr[cf].yb[i];
+                if (Farr[y][x]==0)
+                Farr[y][x]=11+cf;
+                else gaymover();
+            }
+            if (Farr[figarr[cf].yh][figarr[cf].xh]==0)
+            Farr[figarr[cf].yh][figarr[cf].xh]=21+cf;
+            else gaymover();
+        }
+        function init()
+        {
+            canvas.width=(FieldWidth+5)*SetkaStep-1;
+            canvas.height=FieldHeight*SetkaStep-1;
+            for (i=0; i<FieldHeight; i++)
+            for (j=0; j<FieldWidth-1; j++)
+            Farr[i][j]=0;
+            gaymoverc=0;
+            score=0;
+            requestAnimationFrame(update);
+        }
+        function update(time)
+        {   
+            if (time - lastStepTime >= 100+500/Math.sqrt(score+1))
+            {
+                draw(time);
+                lastStepTime = time;
+                move=0;
+                checkBelow();
+                if (move==0)
+                {
+                    newBlock();
+                }
+            }
+            requestAnimationFrame(update);
+        }
+        function draw(time) 
+        {   
+            if (gaymoverc==0){
+                ctx.clearRect(0,0,canvas.width,canvas.height);
+                ctx.fillStyle = "#C1FAA8";
+                ctx.fillRect(0,0,canvas.width,canvas.height);
+                ctx.fillStyle = "#28E240";
+                for (i=0; i<FieldWidth; i++)
+                {
+                    ctx.fillRect ((i*SetkaStep-1),0,1,canvas.height);
+                }
+                for (i=0; i<(FieldHeight); i++)   
+                {
+                    ctx.fillRect (0,(i*SetkaStep-1),canvas.width-SetkaStep*6,1);
+                }
+                ctx.textAlign = "center"
+                ctx.font = "30px sans-serif";
+                ctx.fillStyle = "#4A52AF";
+                ctx.fillText("Счёт:"+score,460, 200);
+                for (var k=1; k<8; k++)
+                {
+                    if (k==1)
+                    ctx.fillStyle = "#ED3231";
+                    if (k==2)
+                    ctx.fillStyle = "#52D4ED";
+                    if (k==3)
+                    ctx.fillStyle = "#9AEF21";
+                    if (k==4)
+                    ctx.fillStyle = "#5CEA9A";
+                    if (k==5)
+                    ctx.fillStyle = "#C1A501";
+                    if (k==6)
+                    ctx.fillStyle = "#F28C12";
+                    if (k==7)
+                    ctx.fillStyle = "#13B630";
+                    for (i=0; i<4; i++)
+                    for (j=0; j<4; j++)
+                    if (Parr[i][j]%10==k)
+                    ctx.fillRect (390+j*SetkaStep, 50+i*SetkaStep, SetkaStep-1, SetkaStep-1);
+                    for (i=0; i<FieldHeight; i++)
+                    for (j=0; j<FieldWidth-1; j++)
+                    if (Farr[i][j]%10==k)
+                    ctx.fillRect (j*SetkaStep, i*SetkaStep, SetkaStep-1, SetkaStep-1);
+                }
+            }
+        }
+        function code_destroyer(event)
+        {
+            console.log(Farr);
+            if (event.keyCode==40)
+            {
+                move=0;
+                checkBelow();
+                if (move==0)
+                {
+                    newBlock();
+                }
+            }
+            if (event.keyCode==39)
+            {
+                checkRight();
+            }
+            if (event.keyCode==37)
+            {
+                checkLeft();
+            }
+            if (event.keyCode==32 || event.keyCode==38)
+            {
+                rotate();
+            }
+            draw();
+            if (event.keyCode==13 && gaymoverc==1)
+            init();
+        }
+        function rotateT()
+        {
+            if (rot%4==0)
+            {
+                if(Farr[chy-1][chx]==0)
+                {
+                    temp = Farr[chy-1][chx];
+                    Farr[chy-1][chx]=Farr[chy][chx-1];
+                    Farr[chy][chx-1]=temp;
+                    rot++;
+                }
+            }
+            else if (rot%4==1)
+            {
+                if(Farr[chy][chx-1]==0)
+                {
+                    temp = Farr[chy+1][chx];
+                    Farr[chy+1][chx]=Farr[chy][chx-1];
+                    Farr[chy][chx-1]=temp;
+                    rot++;
+                }
+            }
+            else if (rot%4==2)
+            {
+                if(Farr[chy+1][chx]==0)
+                {
+                    temp = Farr[chy+1][chx];
+                    Farr[chy+1][chx]=Farr[chy][chx+1];
+                    Farr[chy][chx+1]=temp;
+                    rot++;
+                }
+            }
+            else if (rot%4==3)
+            {
+                if(Farr[chy][chx+1]==0)
+                {
+                    temp = Farr[chy-1][chx];
+                    Farr[chy-1][chx]=Farr[chy][chx+1];
+                    Farr[chy][chx+1]=temp;
+                    rot++;
+                }
+            }
+        }
+        function rotateI()
+        {
+            if (rot%2==0)
+            {
+                if(Farr[chy-1][chx]==0 && Farr[chy+1][chx]==0 && Farr[chy+2][chx]==0)
+                {
+                    Farr[chy-1][chx]=12;
+                    Farr[chy+1][chx]=12;
+                    Farr[chy+2][chx]=12;
+                    Farr[chy][chx+1]=0;
+                    Farr[chy][chx-1]=0;
+                    Farr[chy][chx-2]=0;
+                    rot++;
+                }
+            }
+            else if (rot%2==1)
+            {
+                if( Farr[chy][chx+1]==0 &&  Farr[chy][chx-1]==0 && Farr[chy][chx+2]==0)
+                {
+                    Farr[chy-1][chx]=0;
+                    Farr[chy+1][chx]=0;
+                    Farr[chy+2][chx]=0;
+                    Farr[chy][chx+1]=12;
+                    Farr[chy][chx-1]=12;
+                    Farr[chy][chx-2]=12;
+                    rot++;
+                }
+            }
+        }
+        function rotateZ1()
+        {
+            if (rot%2==1)
+            {
+                if( Farr[chy+1][chx]==0 && Farr[chy+1][chx+1]==0)
+                {
+                    Farr[chy+1][chx]=13;
+                    Farr[chy+1][chx+1]=13;
+                    Farr[chy-1][chx]=0;
+                    Farr[chy+1][chx-1]=0;
+                    rot++;
+                }
+            }
+            else if (rot%2==0)
+            {
+                if( Farr[chy-1][chx]==0 && Farr[chy-1][chx-1]==0)
+                {
+                    Farr[chy+1][chx]=0;
+                    Farr[chy+1][chx+1]=0;
+                    Farr[chy-1][chx]=13;
+                    Farr[chy+1][chx-1]=13;
+                    rot++;
+                }
+            }
+        }
+        function rotateZ2()
+        {
+            if (rot%2==0)
+            {
+                if( Farr[chy-1][chx]==0 && Farr[chy+1][chx+1]==0)
+                {
+                    Farr[chy-1][chx]=16;
+                    Farr[chy+1][chx+1]=16;
+                    Farr[chy+1][chx]=0;
+                    Farr[chy+1][chx-1]=0;
+                    rot++;
+                }
+            }
+            else if (rot%2==1)
+            {
+                if( Farr[chy+1][chx]==0 && Farr[chy+1][chx-1]==0)
+                {
+                    Farr[chy-1][chx]=0;
+                    Farr[chy+1][chx+1]=0;
+                    Farr[chy+1][chx]=16;
+                    Farr[chy+1][chx-1]=16;
+                    rot++;
+                }
+            }
+        }
+        function rotateG1()
+        {
+            if (rot%4==0)
+            {
+                if(Farr[chy-1][chx]==0 && Farr[chy+1][chx]==0 && Farr[chy+1][chx-1]==0)
+                {
+                    Farr[chy-1][chx]=14;
+                    Farr[chy+1][chx]=14;
+                    Farr[chy+1][chx-1]=14;
+                    Farr[chy][chx+1]=0;
+                    Farr[chy][chx-1]=0;
+                    Farr[chy+1][chx+1]=0;
+                    rot++;
+                }
+            }
+            else if (rot%4==1)
+            {
+                if(Farr[chy-1][chx-1]==0 && Farr[chy][chx+1]==0 && Farr[chy][chx-1]==0)
+                {
+                    Farr[chy-1][chx]=0;
+                    Farr[chy+1][chx]=0;
+                    Farr[chy+1][chx-1]=0;
+                    Farr[chy-1][chx-1]=14;
+                    Farr[chy][chx-1]=14;
+                    Farr[chy][chx+1]=14;
+                    rot++;
+                }
+            }
+            else if (rot%4==2)
+            {
+                if(Farr[chy+1][chx]==0 && Farr[chy-1][chx]==0 && Farr[chy-1][chx+1]==0)
+                {
+                    Farr[chy-1][chx]=14;
+                    Farr[chy+1][chx]=14;
+                    Farr[chy-1][chx+1]=14;
+                    Farr[chy][chx-1]=0;
+                    Farr[chy][chx+1]=0;
+                    Farr[chy-1][chx-1]=0;
+                    rot++;
+                }
+            }
+            else if (rot%4==3)
+            {
+                if(Farr[chy+1][chx+1]==0 && Farr[chy][chx+1]==0 && Farr[chy][chx-1]==0)
+                {
+                    Farr[chy-1][chx]=0;
+                    Farr[chy+1][chx]=0;
+                    Farr[chy-1][chx+1]=0;
+                    Farr[chy+1][chx+1]=14;
+                    Farr[chy][chx-1]=14;
+                    Farr[chy][chx+1]=14;
+                    rot++;
+                }
+            }
+        }
+        function rotateG2()
+        {
+            if (rot%4==0)
+            {
+                if(Farr[chy-1][chx]==0 && Farr[chy+1][chx]==0 && Farr[chy-1][chx-1]==0)
+                {
+                    Farr[chy-1][chx]=15;
+                    Farr[chy+1][chx]=15;
+                    Farr[chy-1][chx-1]=15;
+                    Farr[chy][chx+1]=0;
+                    Farr[chy][chx-1]=0;
+                    Farr[chy+1][chx-1]=0;
+                    rot++;
+                }
+            }
+            else if (rot%4==1)
+            {
+                if(Farr[chy-1][chx+1]==0 && Farr[chy][chx+1]==0 && Farr[chy][chx-1]==0)
+                {
+                    Farr[chy-1][chx]=0;
+                    Farr[chy+1][chx]=0;
+                    Farr[chy-1][chx-1]=0;
+                    Farr[chy-1][chx+1]=15;
+                    Farr[chy][chx-1]=15;
+                    Farr[chy][chx+1]=15;
+                    rot++;
+                }
+            }
+            else if (rot%4==2)
+            {
+                if(Farr[chy+1][chx]==0 && Farr[chy-1][chx]==0 && Farr[chy+1][chx+1]==0)
+                {
+                    Farr[chy-1][chx]=15;
+                    Farr[chy+1][chx]=15;
+                    Farr[chy+1][chx+1]=15;
+                    Farr[chy][chx-1]=0;
+                    Farr[chy][chx+1]=0;
+                    Farr[chy-1][chx+1]=0;
+                    rot++;
+                }
+            }
+            else if (rot%4==3)
+            {
+                if(Farr[chy+1][chx-1]==0 && Farr[chy][chx+1]==0 && Farr[chy][chx-1]==0)
+                {
+                    Farr[chy-1][chx]=0;
+                    Farr[chy+1][chx]=0;
+                    Farr[chy+1][chx+1]=0;
+                    Farr[chy][chx+1]=15;
+                    Farr[chy][chx-1]=15;
+                    Farr[chy+1][chx-1]=15;
+                    rot++;
+                }
+            }
+        }
+        function rotateC()
+        {
+            console.log('вращать куб? серьёзно?');
+        }
+        function getRandomInt(min, max) 
+        {
+            return Math.floor(Math.random() * (max - min + 1) + min);
+        }
+        function gaymover()
+        {
+            gaymoverc=1;    
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            ctx.drawImage(img,0,0,canvas.width,canvas.height);
+            ctx.textAlign = "center"
+            ctx.font = "30px sans-serif";
+            ctx.fillStyle = "#5BDB35";
+            ctx.fillText("Ну, ты проиграл, пацан",canvas.width/2, canvas.height/2-40);
+            ctx.fillText("Твой счёт:",canvas.width/2, canvas.height/2);
+            ctx.fillText(score,canvas.width/2, canvas.height/2+40);
+            ctx.fillText("Нажми Enter",canvas.width/2, canvas.height/2+80);
+        }
+        addEventListener('load',init);
+        addEventListener('keydown',code_destroyer);
+    </script>
+    <audio src="Tetris_theme.mp3" autoplay="" loop=""></audio>
+</body>
+</html>
