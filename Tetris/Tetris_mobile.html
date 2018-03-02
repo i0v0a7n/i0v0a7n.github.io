@@ -356,7 +356,7 @@
         }
         function update(time)
         {   
-            if (time - lastStepTime >= 200+500/Math.sqrt(score+1))
+            if (time - lastStepTime >= 400+500/Math.sqrt(score+1))
             {
                 draw(time);
                 lastStepTime = time;
@@ -417,14 +417,14 @@
         }
         function code_destroyer(event)
         {
-            console.log(Farr);
-            var tx=event.targetTouches[0].clientX-canvas.offsetLeft;
-            var ty=event.targetTouches[0].clientY-canvas.offsetTop;
+            console.log(event.targetTouches[0].clientX);
+            var tx=event.targetTouches[0].clientX;
+            var ty=event.targetTouches[0].clientY;
             var ur=0;
             var rd=0;
             if (tx>ty)
             ur=1;
-            if (tx>(canvas.height-ty))
+            if (tx>(975-ty))
             rd=1;
             if (ur==1 && rd==1)
             {
