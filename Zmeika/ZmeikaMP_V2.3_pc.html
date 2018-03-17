@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <style>
+        body 
+        {
+            background-image: url(https://pp.userapi.com/c630122/v630122224/27324/NJgyvzB16Uw.jpg);
+            background-size: cover;
+        }  
+        #gameArea 
+        {   
+            opacity: .8; 
+            font-size: 50px;
+            border: 5px solid green; 
+            display: block;
+            margin: auto;
+        }
+    </style>
+    <meta name="viewport">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Zmeika_V2.2_pc</title>
+</head>
+<body>
+    <canvas id="gameArea" width="399" height="399"></canvas>
+    <script>
+        var canvas = document.getElementById("gameArea");
+        var ctx = canvas.getContext("2d");
+        var x1=3;
+        var inputter1 ="empty";
+        var y1=3;
+        var arrx1 = [];
+        var arry1 = [];
+        var arrx2 = [];
+        var arry2 = [];
+        var x2=Fieldsize-3;
+        var y2=Fieldsize-3;
+        var lastStepTime = 0;
+        var i;
+        var length1 = 3;
+        var length2 = 3;
+        var SetkaStep = 20;
+        var Fieldsize = 20;
+        var foodc=0;
+        var fx;
+        var fy;
+        var checker;
+        var gaymoverc=0;
+        var inputter2 ="empty";
+        var lastdir1="empty";
+        var lastdir2="empty";
+        var audio = new Audio('hrum.mp3');
+        var img = new Image();
+        img.src = 'https://pp.userapi.com/c604522/v604522782/3a21d/D8s4bpm9wTk.jpg';
+        function init()
+        {
+            x1=3;
+            y1=3;
+            x2=Fieldsize-3;
+            y2=Fieldsize-3;
+            length1 = 3;
+            length2 = 3;
+            gaymoverc=0;
+            arrx1 = [];
+            arry1 = [];
+            arrx2 = [];
+            arry2 = [];
+            inputter1 ="empty";
+            lastdir1="empty";
+            inputter2 ="empty";
+            lastdir2="empty";
+            canvas.width=Fieldsize*SetkaStep-1;
+            canvas.height=Fieldsize*SetkaStep-1;
+            requestAnimationFrame(update);
+        }
+        function poscheck() 
+        {
+            if (x1>Fieldsize-1)
+            x1=0;
+            if (y1>Fieldsize-1)
+            y1=0;
+            if (x1<0)
+            x1=Fieldsize-1;
+            if (y1<0)
+            y1=Fieldsize-1;
+            if (x2>Fieldsize-1)
+            x2=0;
+            if (y2>Fieldsize-1)
+            y2=0;
+            if (x2<0)
+            x2=Fieldsize-1;
+            if (y2<0)
+            y2=Fieldsize-1;
+        }
+        function update(time)
+        {   
+            if (time - lastStepTime >= 150) 
+            {
+                if(inputter1=="up")
+                {
+                    y1-=1;
+                    lastdir1="vert";
+                }
+                if(inputter1=="down")
+                {
+                    y1+=1;
+                    lastdir1="vert";
+                }
+                if(inputter1=="left")
+                {
+                    x1-=1;
+                    lastdir1="horiz";
+                }
+                if(inputter1=="right")
+                {
+                    x1+=1;
+                    lastdir1="horiz";
+                }
+                if(inputter2=="up")
+                {
+                    y2-=1;
+                    lastdir2="vert";
+                }
+                if(inputter2=="down")
+                {
+                    y2+=1;
+                    lastdir2="vert";
+                }
+                if(inputter2=="left")
+                {
+                    x2-=1;
+                    lastdir2="horiz";
+                }
+                if(inputter2=="right")
+                {
+                    x2+=1;
+                    lastdir2="horiz";
+                }
+                poscheck();
+                if ((fy==y1) && (fx==x1))
+                {
+                    foodc=0;
+                    length1++;
+                    audio.play();
+                }
+                if ((fy==y2) && (fx==x2))
+                {
+                    foodc=0;
+                    length2++;
+                    audio.play();
+                }
+                if (inputter1!="empty")
+                for (i=0; i<length1; i++)  
+                if ((x1==arrx1[i] && y1==arry1[i]) || (x2==arrx1[i] && y2==arry1[i]))
+                {
+                    gaymover();
+                    return;
+                }
+                if (inputter2!="empty")
+                for (i=0; i<length2; i++)  
+                if ((x1==arrx2[i] && y1==arry2[i]) || (x2==arrx2[i] && y2==arry2[i]))
+                {
+                    gaymover();
+                    return;
+                }
+                arrx1[length1]=x1;
+                arry1[length1]=y1;
+                arrx1.shift();
+                arry1.shift();
+                arrx2[length2]=x2;
+                arry2[length2]=y2;
+                arrx2.shift();
+                arry2.shift();
+                if (foodc==0)
+                food();
+                draw(time);
+                lastStepTime = time;
+            }
+            requestAnimationFrame(update);
+        }
+        function RndInt(min, max) 
+        {
+            return Math.floor(Math.random() * (max - min + 1) ) + min;
+        }
+        function food()
+        {
+            while (foodc==0)
+            {
+                checker=0;
+                fx=RndInt(0,Fieldsize-1);
+                fy=RndInt(0,Fieldsize-1);
+                for (i=0; i<length1; i++)  
+                if (fx==arrx1[i] && fy==arry1[i])
+                checker++;
+                for (i=0; i<length2; i++)  
+                if (fx==arrx2[i] && fy==arry2[i])
+                checker++;
+                if (checker==0)
+                foodc=1;    
+            }
+        }
+        function draw(time) 
+        {   
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            ctx.fillStyle = "#FDDE66";
+            ctx.fillRect(0,0,canvas.width,canvas.height);
+            ctx.fillStyle = "#28E240";
+            for (i=0; i<Fieldsize; i++)
+            {
+                ctx.fillRect ((i*SetkaStep-1),0,1,canvas.height);
+            }
+            for (i=0; i<(Fieldsize); i++)   
+            {
+                ctx.fillRect (0,(i*SetkaStep-1),canvas.width,1);
+            }
+            ctx.fillStyle = "#1455AA";
+            for (i=0; i<length1; i++)
+            ctx.fillRect (arrx1[i]*SetkaStep,arry1[i]*SetkaStep,SetkaStep-1,SetkaStep-1);
+            ctx.fillStyle = "#6EE75C";
+            ctx.fillRect (fx*SetkaStep,fy*SetkaStep,SetkaStep-1,SetkaStep-1);
+            ctx.fillStyle = "#262076";
+            ctx.fillRect (x1*SetkaStep,y1*SetkaStep,SetkaStep-1,SetkaStep-1);
+            ctx.fillStyle = "#FA2E50";
+            for (i=0; i<length2; i++)
+            ctx.fillRect (arrx2[i]*SetkaStep,arry2[i]*SetkaStep,SetkaStep-1,SetkaStep-1);
+            ctx.fillStyle = "#C91D12";
+            ctx.fillRect (x2*SetkaStep,y2*SetkaStep,SetkaStep-1,SetkaStep-1);
+            ctx.fillStyle = "#FFFFFF";
+            for (i=0; i<length2; i++)
+            {
+                ctx.fillRect (arrx2[i]*SetkaStep,arry2[i]*SetkaStep,1,SetkaStep-1);
+                ctx.fillRect (arrx2[i]*SetkaStep,arry2[i]*SetkaStep,SetkaStep-1,1);
+            }
+            for (i=0; i<length1; i++)
+            {
+                ctx.fillRect (arrx1[i]*SetkaStep,arry1[i]*SetkaStep,1,SetkaStep-1);
+                ctx.fillRect (arrx1[i]*SetkaStep,arry1[i]*SetkaStep,SetkaStep-1,1);
+            }
+            ctx.fillRect (fx*SetkaStep,fy*SetkaStep,1,SetkaStep-1);
+            ctx.fillRect (fx*SetkaStep,fy*SetkaStep,SetkaStep-1,1);
+            ctx.fillRect (x1*SetkaStep,y1*SetkaStep,1,SetkaStep-1);
+            ctx.fillRect (x1*SetkaStep,y1*SetkaStep,SetkaStep-1,1);
+        }
+        function code_destroyer1(event)
+        {
+            if (lastdir1=="empty")
+            {
+                if (event.keyCode==38)
+                {
+                    inputter1="up";
+                }
+                if (event.keyCode==40)
+                {
+                    inputter1="down";
+                }
+                if (event.keyCode==39)
+                {
+                    inputter1="right";
+                }
+                if (event.keyCode==37)
+                {
+                    inputter1="left";
+                }
+            }
+            else if (lastdir1=="vert")
+            {
+                if (event.keyCode==39)
+                {
+                    inputter1="right";
+                }
+                else if (event.keyCode==37)
+                {
+                    inputter1="left";
+                }
+            }
+            else if (lastdir1=="horiz")
+            {
+                if (event.keyCode==38)
+                {
+                    inputter1="up";
+                }
+                else if (event.keyCode==40)
+                {
+                    inputter1="down";
+                }
+            }
+            if (lastdir2=="empty")
+            {
+                if (event.keyCode==87)
+                {
+                    inputter2="up";
+                }
+                if (event.keyCode==83)
+                {
+                    inputter2="down";
+                }
+                if (event.keyCode==68)
+                {
+                    inputter2="right";
+                }
+                if (event.keyCode==65)
+                {
+                    inputter2="left";
+                }
+            }
+            else if (lastdir2=="vert")
+            {
+                if (event.keyCode==68)
+                {
+                    inputter2="right";
+                }
+                else if (event.keyCode==65)
+                {
+                    inputter2="left";
+                }
+            }
+            else if (lastdir2=="horiz")
+            {
+                if (event.keyCode==87)
+                {
+                    inputter2="up";
+                }
+                else if (event.keyCode==83)
+                {
+                    inputter2="down";
+                }
+            }
+            if (event.keyCode==13 && gaymoverc==1)
+            init();
+        }
+        function gaymover()
+        {
+            gaymoverc=1;
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            ctx.drawImage(img,0,0,canvas.width,canvas.height);
+            ctx.textAlign = "center"
+            ctx.font = "30px sans-serif";
+            ctx.fillStyle = "#5BDB35";
+            ctx.fillText("Ну, вы проиграли пацаны",canvas.width/2, canvas.height/2-40);
+            ctx.fillText("Счёт синего:"+length1,canvas.width/2, canvas.height/2);
+            ctx.fillText("Счёт красного:"+length2,canvas.width/2, canvas.height/2+40);
+            ctx.fillText("Нажмите Enter",canvas.width/2, canvas.height/2+80);
+        }
+        addEventListener('load',init);
+        addEventListener('keydown',code_destroyer1);
+    </script>
+    <audio src="shakalfon.mp3" autoplay="" loop=""></audio>
+    
+</body></html>
