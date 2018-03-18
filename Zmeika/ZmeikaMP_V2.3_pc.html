@@ -17,7 +17,7 @@
     </style>
     <meta name="viewport">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Zmeika_MP</title>
+    <title>Zmeika_MPc</title>
 </head>
 <body>
     <canvas id="gameArea" width="399" height="399"></canvas>
@@ -94,6 +94,7 @@
         {   
             if (time - lastStepTime >= 150) 
             {
+                
                 if(inputter1=="up")
                 {
                     y1-=1;
@@ -147,9 +148,13 @@
                     length2++;
                     audio.play();
                 }
+                arrx2[length2]=x2;
+                arry2[length2]=y2;
+                arrx1[length1]=x1;
+                arry1[length1]=y1;
                 if (inputter1!="empty")
                 for (i=0; i<length1; i++)  
-                if ((x1==arrx1[i] && y1==arry1[i]) || (x2==arrx1[i] && y2==arry1[i]))
+                if ((x1==arrx1[i] && y1==arry1[i]) || (x2==arrx1[i] && y2==arry1[i]) || (x1==x2 && y1==y2))
                 {
                     gaymover();
                     return;
@@ -161,12 +166,8 @@
                     gaymover();
                     return;
                 }
-                arrx1[length1]=x1;
-                arry1[length1]=y1;
                 arrx1.shift();
                 arry1.shift();
-                arrx2[length2]=x2;
-                arry2[length2]=y2;
                 arrx2.shift();
                 arry2.shift();
                 if (foodc==0)
